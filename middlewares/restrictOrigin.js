@@ -1,4 +1,4 @@
-const allowedOrigins = ["localhost"];
+const allowedOrigins = ["localhost","127.0.0.1"];
 
 module.exports = (req, res, next) => {
   let isDomainAllowed = allowedOrigins.indexOf(req.hostname) !== -1;

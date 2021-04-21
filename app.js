@@ -1,10 +1,13 @@
 const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
+var indexRouter = require("./routes/index");
+var apiRouter = require("./routes/api");
+var apiResponse = require("./src/user/helpers/apiResponse");
 require("dotenv").config();
 const bodyParser = require("body-parser");
 const restrictOrigin = require("./middlewares/restrictOrigin");
-
+var cors = require("cors");
 const app = express();
 
 mongoose
@@ -25,8 +28,30 @@ app.use(restrictOrigin);
 
 app.use(express.json());
 app.use(morgan("dev"));
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
 
-app.post("/ping", (req, res) => {
+// parse application/json
+app.use(bodyParser.json())
+//To allow cross-origin requests
+app.use(cors());
+
+//Route Prefixes
+app.use("/", indexRouter);
+app.use("/api/", apiRouter);
+
+// throw 404 if URL not found
+app.all("*", function(req, res) {
+	return apiResponse.notFoundResponse(res, "Page not found");
+});
+
+app.use((err, req, res) => {
+	if(err.name == "UnauthorizedError"){
+		return apiResponse.unauthorizedResponse(res, err.message);
+	}
+});
+
+app.get("/ping", (req, res) => {
   return res.send({
     status: "Server is up and running",
   });
