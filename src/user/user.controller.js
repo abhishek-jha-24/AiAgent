@@ -29,6 +29,59 @@ exports.getUser = [
 	}
 ];
 
+
+
+exports.newUser=[
+	(req,res)=>{
+		var user_data=mongoose.model('user_data',UserSchema,'user');
+		var user_doc=({
+		username,
+        account_address,
+        user_type,
+        bio,
+        email_address,
+        bg_img_url,
+        profile_pic_url,
+        is_verified,
+        is_deleted
+		})
+			User.save().then((users)=>{
+				return apiResponse.successResponseWithData(res,"user added successfully",users);
+			})
+		
+	}
+];
+
+
+exports.getUserByID=[
+	(req,res)=>{
+	typeof _id,
+	User.findById(_id).then((users)=>{
+		return apiResponse.successResponseWithData(res,"user found successfully",users);
+	})
+}
+];
+
+
+
+exports.updateUser=[
+	(req,res)=>{
+	typeof _id,
+	User.findByIdAndUpdate(_id,req.body).then((users)=>{
+		return apiResponse.successResponseWithData(res,"user updated successfully",users);
+	})
+}
+];
+
+
+exports.deleteUser=[
+	(req,res)=>{
+	typeof _id,
+	User.findByIdAndDelete(_id).then((users)=>{
+		return apiResponse.successResponseWithData(res,"user updated successfully",users);
+	})
+}
+];
 // /**
 //  * Book Detail.
 //  * 
