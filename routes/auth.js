@@ -5,4 +5,6 @@ var router = express.Router();
 
 //router.post("/verifyUser", AuthController.verifyUser);
 
+router.post("/verifyUser/:id", AuthController.verifyUser);
+
 module.exports = router;
