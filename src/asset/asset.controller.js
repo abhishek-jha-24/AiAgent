@@ -9,6 +9,38 @@ const {
 } = require("./validators/validator");
 const apiResponse = require("../user/helpers/apiResponse");
 
+const Web3 = require('web3');
+const abi=require('../build/contracts/assetContract').abi;
+const address=require('../build/contracts/assetContract').address;
+const HDWalletProvider = require('@truffle/hdwallet-provider');
+const address1='0xccdb17b8eF68ffFdbCA4bf4AB6B765e41d61733A';
+const privateKey1="c244b6e8ae351e71fa353515c55a4e0be82fb5bf7186c18419f89421805f74b7";
+
+const init = async() => {
+ const provider = new  HDWalletProvider(
+   privateKey1,
+   'https://ropsten.infura.io/v3/8d012749a8ae4ca1a238b25053109ffe'
+ );
+ const web3 = new Web3(provider);
+ const accounts= await web3.eth.getAccounts();
+ const contract = new web3.eth.Contract(abi,address);
+
+ //Sending transactions from parent account to secondary account
+ let parameters = {
+  from:address1,
+  to:0x391C924EC2dC3454CEc9C79d9f381ab43BF31aDc,
+  value:web3.utils.toWei('1','ether')
+ }
+
+// var assetCreateReceipt=await contract.methods.assetCreate("lion","vivek","lion is king of the jungle",4).send({from: address1});
+// console.log(assetCreateReceipt);
+
+var burnTokenReceipt=await contract.methods.burnToken(2).send({from: address1});
+console.log(burnTokenReceipt);
+};
+init();
+
+
 const handlerError = (res, err) => {
   if (err.isJoi) {
     console.log(err.details);
