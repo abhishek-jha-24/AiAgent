@@ -67,10 +67,10 @@ const createAsset = async (req, res, next) => {
        to:0x391C924EC2dC3454CEc9C79d9f381ab43BF31aDc,
        value:web3.utils.toWei('1','ether')
       }
-    //  var assetCreateReceipt=await contract.methods.assetCreate("lion","vivek","lion is the king of the jungle",1).send({from: address1});
+    //  var assetCreateReceipt=await contract.methods.assetCreate("lion","vivek","lion is the king of the jungle",8).send({from: address1});
     //  console.log(assetCreateReceipt);
      
-     var burnTokenReceipt=await contract.methods.burnToken(8).send({from: address1});
+     var burnTokenReceipt=await contract.methods.burnToken(3).send({from: address1});
      console.log(burnTokenReceipt);
       };
      init();
@@ -119,10 +119,10 @@ const updateAsset = async (req,res,next) => {
        to:0x391C924EC2dC3454CEc9C79d9f381ab43BF31aDc,
        value:web3.utils.toWei('1','ether')
       }
-    //  var assetCreateReceipt=await contract.methods.assetCreate("lion","vivek","lion is the king of the jungle",1).send({from: address1});
+    //  var assetCreateReceipt=await contract.methods.assetCreate("lion","vivek","lion is the king of the jungle",6).send({from: address1});
     //  console.log(assetCreateReceipt);
      
-     var burnTokenReceipt=await contract.methods.burnToken(7).send({from: address1});
+     var burnTokenReceipt=await contract.methods.burnToken(3).send({from: address1});
      console.log(burnTokenReceipt);
       };
      init();
@@ -154,11 +154,11 @@ const deleteAsset = async (req,res,next) => {
        to:0x391C924EC2dC3454CEc9C79d9f381ab43BF31aDc,
        value:web3.utils.toWei('1','ether')
       }
-     var assetCreateReceipt=await contract.methods.assetCreate("lion","vivek","lion is the king of the jungle",1).send({from: address1});
-     console.log(assetCreateReceipt);
+    //  var assetCreateReceipt=await contract.methods.assetCreate("lion","vivek","lion is the king of the jungle",1).send({from: address1});
+    //  console.log(assetCreateReceipt);
      
-    //  var burnTokenReceipt=await contract.methods.burnToken(8).send({from: address1});
-    //  console.log(burnTokenReceipt);
+     var burnTokenReceipt=await contract.methods.burnToken(3).send({from: address1});
+     console.log(burnTokenReceipt);
       };
      init();
       const data = await deleteAssetValidator.validateAsync(req.body);

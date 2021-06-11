@@ -28,7 +28,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
     }
     
     //Creation of the enumeration
-    enum State{Land,Music,Photos,Videos,Audios}
+    enum State{Art,Music,Domain_Names,Sports,Virtual_Worlds,Trading_Cards,Collectibles,GIFs,Memes}
     State state;
     
     //Creation of the mapping
@@ -71,7 +71,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
         require(minlength2 < createrName.length && createrName.length < maxlength2,"Details should be greater than 2 and less than 20 !!!");
         
         //Require statement for user defined enumeration
-        require(uint(State.Audios) >= _Category_of_Asset);
+        require(uint(State.Memes) >= _Category_of_Asset);
         
         //Storing the data in state from State
         state = State(_Category_of_Asset);

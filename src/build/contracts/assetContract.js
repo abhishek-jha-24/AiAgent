@@ -96,22 +96,22 @@ const abi=[
 			},
 			{
 				"internalType": "string",
-				"name": "_AssetName",
+				"name": "_assetName",
 				"type": "string"
 			},
 			{
 				"internalType": "string",
-				"name": "_CreaterName",
+				"name": "_createrName",
 				"type": "string"
 			},
 			{
 				"internalType": "string",
-				"name": "_Description_of_the_asset",
+				"name": "_description_of_asset",
 				"type": "string"
 			},
 			{
 				"internalType": "uint256",
-				"name": "_Category_of_Asset",
+				"name": "_category_of_Asset",
 				"type": "uint256"
 			}
 		],
@@ -153,22 +153,22 @@ const abi=[
 		"inputs": [
 			{
 				"internalType": "string",
-				"name": "_AssetName",
+				"name": "_assetName",
 				"type": "string"
 			},
 			{
 				"internalType": "string",
-				"name": "_CreaterName",
+				"name": "_createrName",
 				"type": "string"
 			},
 			{
 				"internalType": "string",
-				"name": "_Description_of_the_asset",
+				"name": "_description_of_Asset",
 				"type": "string"
 			},
 			{
 				"internalType": "uint256",
-				"name": "_Category_of_Asset",
+				"name": "_category_of_Asset",
 				"type": "uint256"
 			}
 		],
@@ -429,6 +429,6 @@ const abi=[
 	}
 ];
 
-address="0xACb4611ba10ED2CE99C9Fe59Dd1144b06A43d19e";
+address="0xbC488544c76026C488E64Bbd6166d61B06B7384B";
 module.exports.abi=abi;
 module.exports.address=address;
