@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 
 const assetPropertiesSchema = new mongoose.Schema({
-	assetId : {type:Schema.Types.ObjectId,ref:"Assets"},
+	_id : {type:Schema.Types.ObjectId,ref:"Assets"},
 	properties : [{
 		_id: false,
 		name:String,
