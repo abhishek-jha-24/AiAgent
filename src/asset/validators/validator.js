@@ -6,7 +6,6 @@ const baseAsset = Joi.object({
 	_AssetName: Joi.string().required(),
 	_Description_of_the_asset: Joi.string(),
 	private: Joi.boolean(),
-	category: Joi.string(),
 	properties: Joi.array().items(
 		Joi.object({
 			name: Joi.string().required(),

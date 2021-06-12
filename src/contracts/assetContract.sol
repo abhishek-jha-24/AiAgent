@@ -80,6 +80,6 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
     function burnToken(uint256 tokenId) public {
       
       //Burn the token     
-     _burn(tokenId);
+      _burn(tokenId);
     }
 }
