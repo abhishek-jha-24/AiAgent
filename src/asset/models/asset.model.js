@@ -5,7 +5,7 @@ const assetSchema = new mongoose.Schema(
 	{
 		ownerId: { type: Schema.Types.ObjectId, ref: "User" },
 		assetUrl: String,
-		_Category_of_Asset: String,
+		_Category_of_Asset: Number,
 		_AssetName: String,
 		_Description_of_the_asset: String,
 		private: Boolean,
