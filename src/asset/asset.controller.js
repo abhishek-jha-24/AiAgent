@@ -52,12 +52,12 @@ const handlerError = (res, err) => {
 
 const createAsset = async (req, res, next) => {
   try {
-    const init = async() => {
+      const init = async() => {
       const provider = new  HDWalletProvider(
         privateKey1,
         'https://ropsten.infura.io/v3/8d012749a8ae4ca1a238b25053109ffe'
       );
-     const web3 = new Web3(provider);
+      const web3 = new Web3(provider);
       const accounts= await web3.eth.getAccounts();
       const contract = new web3.eth.Contract(abi,address);
      
@@ -70,10 +70,10 @@ const createAsset = async (req, res, next) => {
      var assetCreateReceipt=await contract.methods.assetCreate("lion","vivek","lion is the king of the jungle",8).send({from: address1});
      console.log(assetCreateReceipt);
      
-    //  var burnTokenReceipt=await contract.methods.burnToken(1).send({from: address1});
+    //  var burnTokenReceipt=await contract.methods.burnToken(5).send({from: address1});
     //  console.log(burnTokenReceipt);
 
-    // const data = await contract.methods.ownerOf(1).call();
+    // const data = await contract.methods.ownerOf(6).call();
     // console.log(data);
       };
      init();
@@ -106,13 +106,12 @@ const createAsset = async (req, res, next) => {
 const updateAsset = async (req,res,next) => {
     
   try{
-
-    const init = async() => {
+      const init = async() => {
       const provider = new  HDWalletProvider(
         privateKey1,
         'https://ropsten.infura.io/v3/8d012749a8ae4ca1a238b25053109ffe'
       );
-     const web3 = new Web3(provider);
+      const web3 = new Web3(provider);
       const accounts= await web3.eth.getAccounts();
       const contract = new web3.eth.Contract(abi,address);
      
@@ -122,13 +121,13 @@ const updateAsset = async (req,res,next) => {
        to:0x391C924EC2dC3454CEc9C79d9f381ab43BF31aDc,
        value:web3.utils.toWei('1','ether')
       }
-     var assetCreateReceipt=await contract.methods.assetCreate("tiger","varun","tiger is an animal",8,"0x8DADF9aCaBEe5595a55eaF41c074d8e60A1bC3f8").send({from: address1});
-     console.log(assetCreateReceipt);
+      var assetCreateReceipt=await contract.methods.assetCreate("lion","vivek","lion is the king of the jungle",8).send({from: address1});
+      console.log(assetCreateReceipt);
      
-    //  var burnTokenReceipt=await contract.methods.burnToken(3).send({from: address1});
+    //  var burnTokenReceipt=await contract.methods.burnToken(5).send({from: address1});
     //  console.log(burnTokenReceipt);
         
-    // const data = await contract.methods.ownerOf(1).call();
+    // const data = await contract.methods.ownerOf(6).call();
     // console.log(data);
  };
      init();
@@ -145,12 +144,12 @@ const updateAsset = async (req,res,next) => {
 
 const deleteAsset = async (req,res,next) => {
   try{
-    const init = async() => {
+      const init = async() => {
       const provider = new  HDWalletProvider(
         privateKey1,
         'https://ropsten.infura.io/v3/8d012749a8ae4ca1a238b25053109ffe'
       );
-     const web3 = new Web3(provider);
+      const web3 = new Web3(provider);
       const accounts= await web3.eth.getAccounts();
       const contract = new web3.eth.Contract(abi,address);
      
@@ -160,13 +159,13 @@ const deleteAsset = async (req,res,next) => {
        to:0x391C924EC2dC3454CEc9C79d9f381ab43BF31aDc,
        value:web3.utils.toWei('1','ether')
       }
-     var assetCreateReceipt=await contract.methods.assetCreate("lion","vivek","lion is the king of the jungle",1,"").send({from: address1});
+     var assetCreateReceipt=await contract.methods.assetCreate("lion","vivek","lion is the king of the jungle",1).send({from: address1});
      console.log(assetCreateReceipt);
      
-    //  var burnTokenReceipt=await contract.methods.burnToken(3).send({from: address1});
+    //  var burnTokenReceipt=await contract.methods.burnToken(5).send({from: address1});
     //  console.log(burnTokenReceipt);
 
-    // const data = await contract.methods.ownerOf(1).call();
+    // const data = await contract.methods.ownerOf(6).call();
     // console.log(data);
       }; 
      init();
