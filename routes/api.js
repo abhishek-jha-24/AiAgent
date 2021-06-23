@@ -5,7 +5,7 @@ var assetRouter = require('./asset');
 
 var app = express();
 
-app.use("/auth/", authRouter);
+// app.use("/auth/", authRouter);
 app.use("/user/", userRouter);
 app.use('/assets',assetRouter);
 
