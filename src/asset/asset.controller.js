@@ -1,4 +1,5 @@
 const Asset = require("./models/asset.model.js");
+const User = require("../user/models/user.model.js");
 const AssetProperties = require("./models/asset_properties.model.js");
 const {
   assetValidator,
@@ -50,9 +51,16 @@ const handlerError = (res, err) => {
   return apiResponse.ErrorResponse(res, "Internal Server Error");
 };
 
+
+
+const categoryType = {
+	art : 1,
+}
+
 const createAsset = async (req, res, next) => {
   try {
-      const init = async() => {
+      const init = async(assetName,createrName,description,category) => {
+      console.log(assetName,createrName,description,category);
       const provider = new  HDWalletProvider(
         privateKey1,
         'https://ropsten.infura.io/v3/8d012749a8ae4ca1a238b25053109ffe'
@@ -67,18 +75,21 @@ const createAsset = async (req, res, next) => {
        to:0x391C924EC2dC3454CEc9C79d9f381ab43BF31aDc,
        value:web3.utils.toWei('1','ether')
       }
-     var assetCreateReceipt=await contract.methods.assetCreate("lion","vivek","lion is the king of the jungle",8).send({from: address1});
-     console.log(assetCreateReceipt);
+     var assetCreateReceipt=await contract.methods.assetCreate(assetName,createrName,description,category).send({from: address1});
+     console.log(assetCreateReceipt.events.Transfer.returnValues.tokenId);
      
+    // return assetCreateReceipt;
     //  var burnTokenReceipt=await contract.methods.burnToken(5).send({from: address1});
     //  console.log(burnTokenReceipt);
 
-    // const data = await contract.methods.ownerOf(6).call();
-    // console.log(data);
-      };
-     init();
-  
+    const data = await contract.methods.ownerOf(6).call();
+    console.log(data);
+      }; 
     const data = await assetValidator.validateAsync(req.body);
+    const assetData = data.asset;
+    const user = await User.findOne({account_address:[ data.ownerId ]});
+    const categoryId = categoryType[assetData.category];
+    const contract = await init(assetData.assetName,user.username,assetData.description,categoryId);
     const asset = new Asset({...(data.asset),ownerId:data.ownerId,});
     const assetRef = await asset.save();
     console.log(assetRef);
@@ -121,16 +132,16 @@ const updateAsset = async (req,res,next) => {
        to:0x391C924EC2dC3454CEc9C79d9f381ab43BF31aDc,
        value:web3.utils.toWei('1','ether')
       }
-      var assetCreateReceipt=await contract.methods.assetCreate("lion","vivek","lion is the king of the jungle",8).send({from: address1});
-      console.log(assetCreateReceipt);
+      // var assetCreateReceipt=await contract.methods.assetCreate("lion","vivek","lion is the king of the jungle",8).send({from: address1});
+      // console.log(assetCreateReceipt);
      
     //  var burnTokenReceipt=await contract.methods.burnToken(5).send({from: address1});
     //  console.log(burnTokenReceipt);
         
-    // const data = await contract.methods.ownerOf(6).call();
-    // console.log(data);
+    const data = await contract.methods.ownerOf(1).call();
+    console.log(data);
  };
-     init();
+    await init();
       const data = await updateAssetValidator.validateAsync(req.body);
       const updatedAsset = await Asset.findByIdAndUpdate(data.assetId,data.asset,{new:true}); 
       return apiResponse.successResponseWithData(res,"Updated Sucessfully",updatedAsset);

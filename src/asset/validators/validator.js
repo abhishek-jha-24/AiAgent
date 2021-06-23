@@ -2,9 +2,10 @@ const Joi = require("joi");
 
 const baseAsset = Joi.object({
 	assetUrl: Joi.string().uri().required(),
-	_Category_of_Asset: Joi.number().required(),
-	_AssetName: Joi.string().required(),
-	_Description_of_the_asset: Joi.string(),
+	category: Joi.string().required(),
+	assetName: Joi.string().required(),
+	assetMime:Joi.string().required(),
+	description: Joi.string(),
 	private: Joi.boolean(),
 	properties: Joi.array().items(
 		Joi.object({
