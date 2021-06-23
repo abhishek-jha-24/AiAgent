@@ -45,7 +45,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
     }
     
     //Defining of the function
-    function assetCreate(string memory _AssetName, string memory _CreaterName,string memory _Description_of_the_asset,uint256 _Category_of_Asset) public onlyOwner{
+    function assetCreate(string memory _AssetName, string memory _CreaterName,string memory _Description_of_the_asset,uint256 _Category_of_Asset) public onlyOwner returns(uint){
         
         //Conversion of one databyte to another databyte
         bytes memory assetName = bytes(_AssetName);
@@ -75,7 +75,10 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
         
         //Storing the data in state from State
         state = State(_Category_of_Asset);
+        
+        return assetCount;
     }
+
     
     function burnToken(uint256 tokenId) public {
       
