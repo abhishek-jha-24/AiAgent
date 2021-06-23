@@ -2,7 +2,7 @@ const Joi = require("joi");
 
 const baseAsset = Joi.object({
 	assetUrl: Joi.string().uri().required(),
-	category: Joi.string().required(),
+	category: Joi.string().lowercase().required(),
 	assetName: Joi.string().required(),
 	assetMime:Joi.string().required(),
 	description: Joi.string(),
@@ -42,7 +42,7 @@ const updateAssetValidator = Joi.object({
 
 const deleteAssetValidator = Joi.object({
 		ownerId:Joi.string().required(),
-		_id:Joi.string().required()
+		assetId:Joi.string().required()
 });
 
 const getUsersAssetsValidator = Joi.object({

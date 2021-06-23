@@ -54,7 +54,15 @@ const handlerError = (res, err) => {
 
 
 const categoryType = {
-	art : 1,
+	art:0,
+	music:1,
+	domain_names:2,
+	sports:3,
+	virtual_Worlds:4,
+	trading_Cards:5,
+	collectibles:6,
+	gifs:7,
+	memes:8
 }
 
 const createAsset = async (req, res, next) => {
@@ -76,21 +84,22 @@ const createAsset = async (req, res, next) => {
        value:web3.utils.toWei('1','ether')
       }
      var assetCreateReceipt=await contract.methods.assetCreate(assetName,createrName,description,category).send({from: address1});
-     console.log(assetCreateReceipt.events.Transfer.returnValues.tokenId);
+     return (assetCreateReceipt.events.Transfer.returnValues.tokenId);
      
     // return assetCreateReceipt;
     //  var burnTokenReceipt=await contract.methods.burnToken(5).send({from: address1});
     //  console.log(burnTokenReceipt);
 
-    const data = await contract.methods.ownerOf(6).call();
-    console.log(data);
+    // const data = await contract.methods.ownerOf(6).call();
+    // console.log(data);
       }; 
     const data = await assetValidator.validateAsync(req.body);
     const assetData = data.asset;
     const user = await User.findOne({account_address:[ data.ownerId ]});
     const categoryId = categoryType[assetData.category];
-    const contract = await init(assetData.assetName,user.username,assetData.description,categoryId);
-    const asset = new Asset({...(data.asset),ownerId:data.ownerId,});
+    const tokenId = await init(assetData.assetName,user.username,assetData.description,categoryId);
+    const contractAddress = '0x42b67365D11fFf9ACDE7b5d6202689F15BEEF275';
+    const asset = new Asset({...(data.asset),ownerId:user._id,chainInfo:{contract:contractAddress,token:tokenId,chain:'Ethereum'}});
     const assetRef = await asset.save();
     console.log(assetRef);
     const assetProps = new AssetProperties({
@@ -155,7 +164,7 @@ const updateAsset = async (req,res,next) => {
 
 const deleteAsset = async (req,res,next) => {
   try{
-      const init = async() => {
+      const init = async(tokenId) => {
       const provider = new  HDWalletProvider(
         privateKey1,
         'https://ropsten.infura.io/v3/8d012749a8ae4ca1a238b25053109ffe'
@@ -170,18 +179,19 @@ const deleteAsset = async (req,res,next) => {
        to:0x391C924EC2dC3454CEc9C79d9f381ab43BF31aDc,
        value:web3.utils.toWei('1','ether')
       }
-     var assetCreateReceipt=await contract.methods.assetCreate("lion","vivek","lion is the king of the jungle",1).send({from: address1});
-     console.log(assetCreateReceipt);
+     // var assetCreateReceipt=await contract.methods.assetCreate("lion","vivek","lion is the king of the jungle",1).send({from: address1});
+     // console.log(assetCreateReceipt);
      
-    //  var burnTokenReceipt=await contract.methods.burnToken(5).send({from: address1});
-    //  console.log(burnTokenReceipt);
+     var burnTokenReceipt=await contract.methods.burnToken(tokenId).send({from: address1});
+     console.log(burnTokenReceipt);
 
-    // const data = await contract.methods.ownerOf(6).call();
+    // const data = await contract.methods.ownerOf(tokenId).call();
     // console.log(data);
       }; 
-     init();
       const data = await deleteAssetValidator.validateAsync(req.body);
-      const asset = await Asset.findById(data.assetId);
+	  const asset = await Asset.findById(data.assetId);
+	const tokenId = asset.chainInfo.token;
+       await init(tokenId);   
       await asset.remove();
       return apiResponse.successResponse(res,"Deleted Sucessfully");
   }catch(err){
