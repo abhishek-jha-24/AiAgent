@@ -3,7 +3,7 @@ const Joi = require("joi");
 const baseAsset = Joi.object({
 	assetUrl: Joi.string().uri().required(),
 	category: Joi.string().lowercase().required(),
-	assetName: Joi.string().required(),
+	assetName: Joi.string().min(2).max(19).required(),
 	assetMime:Joi.string().required(),
 	description: Joi.string(),
 	private: Joi.boolean(),
