@@ -111,10 +111,12 @@ const createAsset = async (req, res, next) => {
     const assetPropsRef = await assetProps.save();
     assetRef.meta = assetPropsRef._id;
     await assetRef.save();
+    const obj = assetRef.toObject();
+    obj.ownerId = user.account_address;
     return apiResponse.successResponseWithData(
       res,
       "Asset created sucessfully !..",
-      assetRef
+      obj
     );
   } catch (err) {
     console.log(err);
@@ -189,7 +191,9 @@ const deleteAsset = async (req,res,next) => {
     // console.log(data);
       }; 
       const data = await deleteAssetValidator.validateAsync(req.body);
-	  const asset = await Asset.findById(data.assetId);
+	const user = await User.findOne({account_address:[data.ownerId]});
+	if(!user)throw Error("User not found");
+	const asset = await Asset.findById(data.assetId);
 	const tokenId = asset.chainInfo.token;
        await init(tokenId);   
       await asset.remove();
