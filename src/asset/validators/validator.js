@@ -50,7 +50,7 @@ const getUsersAssetsValidator = Joi.object({
 });
 
 const getAssetByIdValidator = Joi.object({
-	_id:Joi.string().required(),
+	id:Joi.string().required(),
 });
 // getUsersAssetsValidator
 module.exports = { assetValidator , getUsersAssetsValidator,updateAssetValidator,deleteAssetValidator , getAssetByIdValidator} ;

@@ -3,11 +3,11 @@ const Schema = mongoose.Schema;
 
 const assetSchema = new mongoose.Schema(
 	{
-		ownerId: { type: Schema.Types.ObjectId, ref: "User" },
+		ownerId: { type: Schema.Types.ObjectId, ref: "users" },
 		assetUrl: String,
-		_Category_of_Asset: Number,
-		_AssetName: String,
-		_Description_of_the_asset: String,
+		category: Number,
+		assetName: String,
+		description: String,
 		private: Boolean,
 		chainInfo: {
 			contract: String,

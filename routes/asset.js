@@ -14,7 +14,7 @@ router.delete('/',AssetController.deleteAsset);
 
 // Read
 router.get('/',AssetController.getAllAssets);
-router.get('/user',AssetController.getUsersAssets);
-router.get('/id',AssetController.getAssetById);
+router.get('/user/:ownerId',AssetController.getUsersAssets);
+router.get('/:id',AssetController.getAssetById);
 
 module.exports = router;

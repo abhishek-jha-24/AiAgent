@@ -94,12 +94,14 @@ const createAsset = async (req, res, next) => {
     // console.log(data);
       }; 
     const data = await assetValidator.validateAsync(req.body);
+   console.log(data);
     const assetData = data.asset;
     const user = await User.findOne({account_address:[ data.ownerId ]});
     const categoryId = categoryType[assetData.category];
     const tokenId = await init(assetData.assetName,user.username,assetData.description,categoryId);
+    // const tokenId = '123';
     const contractAddress = '0x42b67365D11fFf9ACDE7b5d6202689F15BEEF275';
-    const asset = new Asset({...(data.asset),ownerId:user._id,chainInfo:{contract:contractAddress,token:tokenId,chain:'Ethereum'}});
+    const asset = new Asset({...(data.asset),category:categoryId,ownerId:user._id,chainInfo:{contract:contractAddress,token:tokenId,chain:'Ethereum'}});
     const assetRef = await asset.save();
     console.log(assetRef);
     const assetProps = new AssetProperties({
@@ -207,18 +209,20 @@ const deleteAsset = async (req,res,next) => {
 
 const getAllAssets = async (req, res, next) => {
   try {
-    const assets = await Asset.find({}).populate("meta");
-    console.log(assets);
+    const assets = await Asset.find({}).populate("meta").populate('ownerId','account_address');
     return apiResponse.successResponseWithData(res, "Success", assets);
   } catch (err) {
+    console.log(err);
     return apiResponse.ErrorResponse(res, "Internal Server Error");
   }
 };
 
 const getUsersAssets = async (req, res, next) => {
   try {
-    const data = await getUsersAssetsValidator.validateAsync(req.body);
-    const assets = await Asset.find({ ownerId: data.ownerId });
+    const data = await getUsersAssetsValidator.validateAsync(req.params);
+    const user = await User.findOne({account_address:[ data.ownerId ]});
+    console.log(user);
+    const assets = await Asset.find({ ownerId: user._id}).populate('meta').populate('ownerId','account_address');
     return apiResponse.successResponseWithData(res, "Success", assets);
   } catch (err) {
     console.log(err);
@@ -228,8 +232,8 @@ const getUsersAssets = async (req, res, next) => {
 
 const getAssetById = async (req,res,next) => {
   try{
-    const data = await getAssetByIdValidator.validateAsync(req.body);
-    const asset = await Asset.findById(data.assetId);
+    const data = await getAssetByIdValidator.validateAsync(req.params);
+    const asset = await Asset.findById(data.id).populate('meta');
     return apiResponse.successResponseWithData(res,"Success",asset);
   }catch(err){
       console.log(err);
