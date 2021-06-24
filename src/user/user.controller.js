@@ -30,6 +30,10 @@ const createUser = async (req, res, next) => {
       
   
     const data = await baseuser.validateAsync(req.body);
+    const uniqueUser=await user.find({account_address:[data.account_address]});
+    if(uniqueUser){
+      throw Error("account with this address already exists!");
+    }
     const User = new user({...(data)});
     const userRef = await User.save();
     // console.log(userRef);
