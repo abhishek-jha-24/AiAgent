@@ -1,57 +1,23 @@
-var mongoose = require("mongoose");
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-var UserSchema = new mongoose.Schema(
-    {
-        username: {
-            type: String,
-            required: false
-        },
-        account_address: {
-            type: Array,
-            required: true
-        },
-        user_type: {
-            type: String,
-            required: false
-        },
-        bio: {
-            type: String,
-            required: false
-        },
-        email_address: {
-            type: String,
-            required: false
-        },
-        bg_img_url: {
-            type: String,
-            required: false
-        },
-        profile_pic_url: {
-            type: String,
-            required: false
-        },
-        is_verified: {
-            type: String,
-            required: false
-        
-        },
-        is_deleted: {
-            type: String,
-            required: false
-        
-        },
-        timestamps: {
-            type: Date,
-            default: Date.now
-        
-        }
-});
+const userSchema = new mongoose.Schema(
+	{
+		// ownerId: { type: Schema.Types.ObjectId, ref: "users" },
+		username:String,
+		account_address: Array,
+		user_type: String,
+		bio: String,
+		email_address:String,
+		bg_img_url:String,
+		profile_pic_url:String,
+		is_deleted: Boolean,
+		is_verified:Boolean,
+		
+		// meta: { type: Schema.Types.ObjectId, ref: "users_Properties" },
+		
+	},
+	{ timestamps: true }
+);
 
-// Virtual for user's full name
-// UserSchema
-// 	.virtual("fullName")
-// 	.get(function () {
-// 		return this.firstName + " " + this.lastName;
-// 	});
-
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model("users", userSchema);

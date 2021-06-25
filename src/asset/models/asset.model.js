@@ -3,10 +3,10 @@ const Schema = mongoose.Schema;
 
 const assetSchema = new mongoose.Schema(
 	{
-		ownerId: { type: Schema.Types.ObjectId, ref: "User" },
+		ownerId: { type: Schema.Types.ObjectId, ref: "users" },
 		assetUrl: String,
-		assetMime: String,
-		name: String,
+		category: Number,
+		assetName: String,
 		description: String,
 		private: Boolean,
 		chainInfo: {
