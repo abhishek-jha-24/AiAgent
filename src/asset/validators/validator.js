@@ -2,11 +2,11 @@ const Joi = require("joi");
 
 const baseAsset = Joi.object({
 	assetUrl: Joi.string().uri().required(),
-	assetMime: Joi.string().required(),
-	name: Joi.string().required(),
+	category: Joi.string().lowercase().required(),
+	assetName: Joi.string().min(2).max(19).required(),
+	assetMime:Joi.string().required(),
 	description: Joi.string(),
 	private: Joi.boolean(),
-	category: Joi.string(),
 	properties: Joi.array().items(
 		Joi.object({
 			name: Joi.string().required(),
@@ -36,7 +36,7 @@ const assetValidator = Joi.object({
 
 const updateAssetValidator = Joi.object({
 	ownerId : Joi.string().required(),
-	assetId:Joi.string().required(),
+	_id:Joi.string().required(),
 	asset:baseAsset
 });
 
@@ -50,7 +50,7 @@ const getUsersAssetsValidator = Joi.object({
 });
 
 const getAssetByIdValidator = Joi.object({
-	assetId:Joi.string().required(),
+	id:Joi.string().required(),
 });
 // getUsersAssetsValidator
 module.exports = { assetValidator , getUsersAssetsValidator,updateAssetValidator,deleteAssetValidator , getAssetByIdValidator} ;
