@@ -157,12 +157,28 @@
         .error.show {
             display: block;
         }
+        
+        .button.recording {
+            background: #f44336;
+            border-color: #d32f2f;
+        }
+        
+        .button.recording:hover {
+            background: #d32f2f;
+            border-color: #b71c1c;
+        }
+        
+        .button.recording:disabled {
+            background: #ffcdd2;
+            border-color: #ffcdd2;
+            color: #666;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>LeetCode Extractor</h1>
-        <p>Extract problem details from LeetCode pages</p>
+        <h1>LeetCode Voice Extractor</h1>
+        <p>Extract problem details and add voice notes to LeetCode pages</p>
     </div>
     
     <div class="status">
@@ -172,7 +188,13 @@
     
     <button class="button" id="startButton">Start Processing</button>
     
-    <button class="button" id="injectButton" style="display: none;">Inject into Code Editor</button>
+    <button class="button" id="startRecordingButton" style="display: none;">Start Voice Recording</button>
+    
+    <button class="button" id="stopRecordingButton" style="display: none;">Stop Recording</button>
+    
+    <button class="button" id="injectButton" style="display: none;">Inject Title + Voice Notes</button>
+    
+    <button class="button" id="getDescriptionButton" style="display: none;">Get Stored Description</button>
     
     <div class="loading" id="loading">
         <div class="spinner"></div>

@@ -92,7 +92,7 @@ function getProblemStatement() {
  * @param {string} title - The problem title
  * @param {string} description - The problem description
  */
-function injectIntoCodeEditor(title, description) {
+async function injectIntoCodeEditor(title, description) {
     try {
         console.log('=== Injecting into LeetCode Code Editor ===');
         console.log('Title:', title);
@@ -176,20 +176,19 @@ function injectIntoCodeEditor(title, description) {
                 return true;
             }
             
-            // Create a comment block and prepend it to existing content
-            // Clean up the description by removing excessive whitespace and formatting properly
-            const cleanDescription = description
-                .split('\n')
-                .map(line => line.trim()) // Remove all leading/trailing whitespace from each line
-                .filter(line => line.length > 0) // Remove empty lines
-                .join('\n')
-                .replace(/\n\s*\n\s*\n/g, '\n\n') // Replace multiple newlines with double newlines
-                .trim();
+            // Store description for later use
+            window.leetcodeProblemDescription = description;
+            console.log('Description stored for later use:', description.length, 'characters');
             
+            // Get recorded voice text
+            const voiceInput = getRecordedText();
+            console.log('Using recorded voice text:', voiceInput);
+            
+            // Create a comment block with title and voice input
             const commentBlock = `/*
  * ${title}
  * 
- * ${cleanDescription.replace(/\n/g, '\n * ')}
+ * Voice Notes: ${voiceInput}
  */
 
 `;
@@ -204,20 +203,19 @@ function injectIntoCodeEditor(title, description) {
         
         console.log('Found code editor:', codeEditor);
         
-        // Create the comment block with title and description
-        // Clean up the description by removing excessive whitespace and formatting properly
-        const cleanDescription = description
-            .split('\n')
-            .map(line => line.trim()) // Remove all leading/trailing whitespace from each line
-            .filter(line => line.length > 0) // Remove empty lines
-            .join('\n')
-            .replace(/\n\s*\n\s*\n/g, '\n\n') // Replace multiple newlines with double newlines
-            .trim();
+        // Store description for later use
+        window.leetcodeProblemDescription = description;
+        console.log('Description stored for later use:', description.length, 'characters');
         
+        // Get recorded voice text
+        const voiceInput = getRecordedText();
+        console.log('Using recorded voice text:', voiceInput);
+        
+        // Create a comment block with title and voice input
         const commentBlock = `/*
  * ${title}
  * 
- * ${cleanDescription.replace(/\n/g, '\n * ')}
+ * Voice Notes: ${voiceInput}
  */
 
 `;
@@ -310,21 +308,32 @@ function extractAndInject() {
     const maxAttempts = 5;
     const retryDelay = 1000; // 1 second
     
-    function tryInjection() {
+    async function tryInjection() {
         attempts++;
         console.log(`Injection attempt ${attempts}/${maxAttempts}`);
         
-        const success = injectIntoCodeEditor(title, statement);
-        
-        if (success) {
-            console.log('Successfully injected problem data into code editor');
-            return true;
-        } else if (attempts < maxAttempts) {
-            console.log(`Injection failed, retrying in ${retryDelay}ms...`);
-            setTimeout(tryInjection, retryDelay);
-        } else {
-            console.error('Failed to inject problem data into code editor after all attempts');
-            return false;
+        try {
+            const success = await injectIntoCodeEditor(title, statement);
+            
+            if (success) {
+                console.log('Successfully injected problem data into code editor');
+                return true;
+            } else if (attempts < maxAttempts) {
+                console.log(`Injection failed, retrying in ${retryDelay}ms...`);
+                setTimeout(tryInjection, retryDelay);
+            } else {
+                console.error('Failed to inject problem data into code editor after all attempts');
+                return false;
+            }
+        } catch (error) {
+            console.error('Error during injection attempt:', error);
+            if (attempts < maxAttempts) {
+                console.log(`Injection failed with error, retrying in ${retryDelay}ms...`);
+                setTimeout(tryInjection, retryDelay);
+            } else {
+                console.error('Failed to inject problem data into code editor after all attempts');
+                return false;
+            }
         }
     }
     
@@ -335,7 +344,7 @@ function extractAndInject() {
 }
 
 // Listen for messages from popup
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     console.log('Content script received message:', request);
     
     if (request.action === 'extractProblemData') {
@@ -362,10 +371,252 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
         return true; // Keep message channel open for async response
     }
+    
+    if (request.action === 'getStoredDescription') {
+        try {
+            console.log('Retrieving stored description...');
+            const description = getStoredDescription();
+            sendResponse({ success: true, description: description });
+        } catch (error) {
+            console.error('Error retrieving stored description:', error);
+            sendResponse({ success: false, error: error.message });
+        }
+        return true; // Keep message channel open for async response
+    }
+    
+    if (request.action === 'startVoiceRecording') {
+        try {
+            console.log('Starting voice recording...');
+            const result = await startVoiceRecording();
+            sendResponse({ success: true, message: 'Voice recording started' });
+        } catch (error) {
+            console.error('Error starting voice recording:', error);
+            sendResponse({ success: false, error: error.message });
+        }
+        return true; // Keep message channel open for async response
+    }
+    
+    if (request.action === 'stopVoiceRecording') {
+        try {
+            console.log('Stopping voice recording...');
+            const recordedText = stopVoiceRecording();
+            sendResponse({ success: true, recordedText: recordedText, message: 'Voice recording stopped' });
+        } catch (error) {
+            console.error('Error stopping voice recording:', error);
+            sendResponse({ success: false, error: error.message });
+        }
+        return true; // Keep message channel open for async response
+    }
+    
+    if (request.action === 'getRecordedText') {
+        try {
+            console.log('Getting recorded text...');
+            const recordedText = getRecordedText();
+            sendResponse({ success: true, recordedText: recordedText });
+        } catch (error) {
+            console.error('Error getting recorded text:', error);
+            sendResponse({ success: false, error: error.message });
+        }
+        return true; // Keep message channel open for async response
+    }
 });
 
 // Signal that content script is ready
 console.log('LeetCode Problem Extractor content script loaded and ready');
+
+// Global variables for voice recording
+let currentRecognition = null;
+let isRecording = false;
+let recordedText = '';
+
+/**
+ * Starts voice recording
+ */
+function startVoiceRecording() {
+    return new Promise((resolve, reject) => {
+        console.log('Starting voice recording...');
+        
+        // Check if speech recognition is supported
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            console.error('Speech recognition not supported in this browser');
+            reject(new Error('Speech recognition not supported in this browser. Please use Chrome or Edge.'));
+            return;
+        }
+        
+        if (isRecording) {
+            console.log('Already recording, stopping current recording first');
+            stopVoiceRecording();
+        }
+        
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        currentRecognition = new SpeechRecognition();
+        
+        // Configure recognition for continuous recording
+        currentRecognition.continuous = true;
+        currentRecognition.interimResults = true;
+        currentRecognition.lang = 'en-US';
+        currentRecognition.maxAlternatives = 1;
+        
+        recordedText = '';
+        isRecording = true;
+        
+        currentRecognition.onstart = () => {
+            console.log('Voice recording started');
+            showRecordingIndicator();
+            resolve(true);
+        };
+        
+        currentRecognition.onresult = (event) => {
+            let interimTranscript = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    recordedText += transcript + ' ';
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+            
+            // Update the indicator with current text
+            updateRecordingIndicator(recordedText + interimTranscript);
+        };
+        
+        currentRecognition.onerror = (event) => {
+            console.error('Voice recording error:', event.error);
+            stopVoiceRecording();
+            
+            let errorMessage = 'Voice recording error: ' + event.error;
+            switch (event.error) {
+                case 'not-allowed':
+                    errorMessage = 'Microphone access denied. Please allow microphone access.';
+                    break;
+                case 'no-speech':
+                    errorMessage = 'No speech detected.';
+                    break;
+                case 'audio-capture':
+                    errorMessage = 'No microphone found.';
+                    break;
+                case 'network':
+                    errorMessage = 'Network error.';
+                    break;
+            }
+            reject(new Error(errorMessage));
+        };
+        
+        // Start recording
+        try {
+            currentRecognition.start();
+        } catch (error) {
+            console.error('Failed to start voice recording:', error);
+            reject(new Error('Failed to start voice recording: ' + error.message));
+        }
+    });
+}
+
+/**
+ * Stops voice recording
+ */
+function stopVoiceRecording() {
+    console.log('Stopping voice recording...');
+    
+    if (currentRecognition && isRecording) {
+        currentRecognition.stop();
+        currentRecognition = null;
+        isRecording = false;
+        hideRecordingIndicator();
+        
+        console.log('Final recorded text:', recordedText.trim());
+        return recordedText.trim();
+    }
+    
+    return '';
+}
+
+/**
+ * Gets the currently recorded text
+ */
+function getRecordedText() {
+    return recordedText.trim();
+}
+
+/**
+ * Shows recording indicator
+ */
+function showRecordingIndicator() {
+    // Remove existing indicator if any
+    hideRecordingIndicator();
+    
+    const indicator = document.createElement('div');
+    indicator.id = 'voice-recording-indicator';
+    indicator.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #f44336;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        z-index: 10000;
+        box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        max-width: 300px;
+        max-height: 200px;
+        overflow-y: auto;
+    `;
+    indicator.innerHTML = `
+        <div style="margin-bottom: 10px;">🔴 Recording... Click Stop when done</div>
+        <div id="recorded-text" style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 8px; border-radius: 5px; margin-top: 8px; min-height: 20px;"></div>
+    `;
+    document.body.appendChild(indicator);
+    
+    // Add stop button
+    const stopButton = document.createElement('button');
+    stopButton.textContent = 'Stop Recording';
+    stopButton.style.cssText = `
+        background: white;
+        color: #f44336;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 8px;
+    `;
+    stopButton.onclick = () => {
+        stopVoiceRecording();
+    };
+    indicator.appendChild(stopButton);
+}
+
+/**
+ * Updates the recording indicator with current text
+ */
+function updateRecordingIndicator(text) {
+    const textElement = document.getElementById('recorded-text');
+    if (textElement) {
+        textElement.textContent = text || 'Listening...';
+    }
+}
+
+/**
+ * Hides recording indicator
+ */
+function hideRecordingIndicator() {
+    const indicator = document.getElementById('voice-recording-indicator');
+    if (indicator) {
+        indicator.remove();
+    }
+}
+
+/**
+ * Retrieves the stored problem description
+ * @returns {string} The stored problem description
+ */
+function getStoredDescription() {
+    return window.leetcodeProblemDescription || '';
+}
 
 // Export functions for external use
 window.leetcodeExtractor = {
@@ -373,5 +624,9 @@ window.leetcodeExtractor = {
     getProblemStatement,
     extractProblemData,
     injectIntoCodeEditor,
-    extractAndInject
+    extractAndInject,
+    getStoredDescription,
+    startVoiceRecording,
+    stopVoiceRecording,
+    getRecordedText
 };
