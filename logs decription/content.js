@@ -70,11 +70,23 @@ function getProblemStatement() {
             return mainContent.textContent.trim();
         }
         
+        // Look for content in the problem description area (for standard problem pages)
+        const problemDescription = document.querySelector('.description__24sM, .content__u3I1, .question-content');
+        if (problemDescription) {
+            return problemDescription.textContent.trim();
+        }
+        
+        // Look for content in the main problem area
+        const mainProblemArea = document.querySelector('[data-track-load="problem_description"]');
+        if (mainProblemArea) {
+            return mainProblemArea.textContent.trim();
+        }
+        
         // Look for any div containing the problem text
         const contentDivs = document.querySelectorAll('div');
         for (const div of contentDivs) {
             const text = div.textContent;
-            if (text && text.includes('You are given') && text.length > 100) {
+            if (text && (text.includes('You are given') || text.includes('Given') || text.includes('Example')) && text.length > 100) {
                 return text.trim();
             }
         }
@@ -225,17 +237,12 @@ ${aiGeneratedCode ? aiGeneratedCode.split('\n').map(line => ' * ' + line).join('
         
         // Get recorded voice text
         const voiceInput = getRecordedText();
-        console.log('Using recorded voice text:', voiceInput);
-        console.log('Voice input length:', voiceInput ? voiceInput.length : 0);
-        console.log('Is voice input empty?', !voiceInput || voiceInput.trim() === '');
         
         // Generate AI solution based on voice notes and problem description
         let aiGeneratedCode = '';
         if (voiceInput && voiceInput.trim() !== '') {
             try {
-                console.log('Generating AI solution based on voice notes...');
                 aiGeneratedCode = await generateAISolution(title, description, voiceInput);
-                console.log('AI Generated Code:', aiGeneratedCode);
             } catch (error) {
                 console.error('Error generating AI solution:', error);
                 aiGeneratedCode = '// AI solution generation failed: ' + error.message;
@@ -266,12 +273,15 @@ ${aiGeneratedCode ? aiGeneratedCode.split('\n').map(line => ' * ' + line).join('
         
         // Add the comment block at the beginning
         const newContent = commentBlock + currentContent;
-        console.log('New content to inject:', newContent);
-        console.log('Comment block:', commentBlock);
         
         // Set the new content
         codeEditor.value = newContent;
-        console.log('Code editor value set to:', codeEditor.value);
+        
+        // Log only the generated AI solution
+        if (aiGeneratedCode) {
+            console.log('=== AI Generated Solution ===');
+            console.log(aiGeneratedCode);
+        }
         
         // Trigger input events to notify the editor of the change
         const events = ['input', 'change', 'keyup', 'paste', 'blur', 'focus'];
@@ -665,11 +675,6 @@ function hideRecordingIndicator() {
  */
 async function generateAISolution(title, description, voiceNotes) {
     try {
-        console.log('=== AI Solution Generation ===');
-        console.log('Title:', title);
-        console.log('Description length:', description.length);
-        console.log('Voice notes:', voiceNotes);
-        
         // Create a prompt for AI code generation
         const prompt = `You are an expert programmer. Generate a complete solution for this LeetCode problem based on the user's voice notes.
 
@@ -693,7 +698,6 @@ Return only the code solution, no explanations outside the code.`;
         // In a real implementation, you would call an AI API like OpenAI, Claude, etc.
         const mockAISolution = generateMockAISolution(title, voiceNotes);
         
-        console.log('Generated AI solution:', mockAISolution);
         return mockAISolution;
         
     } catch (error) {
@@ -734,7 +738,6 @@ function generateMockAISolution(title, voiceNotes) {
     // Space Complexity: O(n) - hash map storage
 }`;
 
-    console.log('Mock AI solution generated for:', title);
     return solution;
 }
 

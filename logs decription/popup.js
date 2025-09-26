@@ -20,7 +20,10 @@ document.addEventListener('DOMContentLoaded', function() {
             chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                 if (tabs[0]) {
                     const url = tabs[0].url;
-                    const isLeetCodeProblem = url.includes('leetcode.com/problems/') && url.includes('/description/');
+                    // Check for both /description/ and standard problem URLs
+                    const isLeetCodeProblem = url.includes('leetcode.com/problems/') && 
+                                           (url.includes('/description/') || 
+                                            url.match(/leetcode\.com\/problems\/[^\/]+\/?$/));
                     resolve({ tab: tabs[0], isLeetCodeProblem });
                 } else {
                     resolve({ tab: null, isLeetCodeProblem: false });
@@ -137,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (!isLeetCodeProblem) {
-                throw new Error('Please navigate to a LeetCode problem page with /description/ in the URL');
+                throw new Error('Please navigate to a LeetCode problem page');
             }
             
             // Send message to content script
@@ -186,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (!isLeetCodeProblem) {
-                throw new Error('Please navigate to a LeetCode problem page with /description/ in the URL');
+                throw new Error('Please navigate to a LeetCode problem page');
             }
             
             // Send message to content script to inject into editor
@@ -222,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (!isLeetCodeProblem) {
-                throw new Error('Please navigate to a LeetCode problem page with /description/ in the URL');
+                throw new Error('Please navigate to a LeetCode problem page');
             }
             
             // Send message to content script to get stored description
@@ -271,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (!isLeetCodeProblem) {
-                throw new Error('Please navigate to a LeetCode problem page with /description/ in the URL');
+                throw new Error('Please navigate to a LeetCode problem page');
             }
             
             // Send message to content script to start voice recording
@@ -316,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (!isLeetCodeProblem) {
-                throw new Error('Please navigate to a LeetCode problem page with /description/ in the URL');
+                throw new Error('Please navigate to a LeetCode problem page');
             }
             
             // Send message to content script to stop voice recording
