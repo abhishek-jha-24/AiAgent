@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>312. Burst Balloons - LeetCode Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .text-title { font-size: 24px; font-weight: bold; margin-bottom: 20px; }
+        .content__u3I1.question-content__JfgR { 
+            background: #f5f5f5; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .test-results { 
+            background: #e8f5e8; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+        }
+        button { 
+            background: #007bff; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover { background: #0056b3; }
+        pre { 
+            background: #f8f9fa; 
+            padding: 10px; 
+            border-radius: 4px; 
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>LeetCode Problem Extractor Test</h1>
+    
+    <!-- Simulated LeetCode problem content -->
+    <div class="text-title">312. Burst Balloons</div>
+    
+    <div class="content__u3I1 question-content__JfgR">
+        <p>You are given <code>n</code> balloons, indexed from <code>0</code> to <code>n - 1</code>. Each balloon is painted with a number on it represented by an array <code>nums</code>. You are asked to burst all the balloons.</p>
+        
+        <p>If you burst the <code>i<sup>th</sup></code> balloon, you will get <code>nums[i - 1] * nums[i] * nums[i + 1]</code> coins. If <code>i - 1</code> or <code>i + 1</code> goes out of bounds of the array, then treat it as if there is a balloon with a <code>1</code> painted on it.</p>
+        
+        <p>Return <em>the maximum coins you can collect by bursting the balloons wisely</em>.</p>
+        
+        <p><strong>Example 1:</strong></p>
+        <pre><code>Input: nums = [3,1,5,8]
+Output: 167
+Explanation:
+nums = [3,1,5,8] --> [3,5,8] --> [3,8] --> [8] --> []
+coins =  3*1*5    +   3*5*8   +  1*3*8  + 1*8*1 = 15 + 120 + 24 + 8 = 167</code></pre>
+        
+        <p><strong>Example 2:</strong></p>
+        <pre><code>Input: nums = [1,5]
+Output: 10</code></pre>
+        
+        <p><strong>Constraints:</strong></p>
+        <ul>
+            <li><code>n == nums.length</code></li>
+            <li><code>1 &lt;= n &lt;= 300</code></li>
+            <li><code>0 &lt;= nums[i] &lt;= 100</code></li>
+        </ul>
+    </div>
+    
+    <div class="test-results">
+        <h3>Test Results:</h3>
+        <button onclick="testExtraction()">Test Extraction</button>
+        <button onclick="clearResults()">Clear Results</button>
+        <div id="results"></div>
+    </div>
+
+    <script src="content.js"></script>
+    <script>
+        function testExtraction() {
+            const resultsDiv = document.getElementById('results');
+            
+            // Test the extraction functions
+            const title = window.leetcodeExtractor.getProblemTitle();
+            const statement = window.leetcodeExtractor.getProblemStatement();
+            
+            resultsDiv.innerHTML = `
+                <h4>Extracted Problem Title:</h4>
+                <pre>${title}</pre>
+                
+                <h4>Extracted Problem Statement:</h4>
+                <pre>${statement}</pre>
+                
+                <h4>Full Extraction Data:</h4>
+                <pre>${JSON.stringify(window.leetcodeExtractedData, null, 2)}</pre>
+            `;
+            
+            console.log('=== Manual Test Results ===');
+            console.log('Title:', title);
+            console.log('Statement:', statement);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        // Auto-run test when page loads
+        window.addEventListener('load', () => {
+            setTimeout(testExtraction, 1000);
+        });
+    </script>
+</body>
+</html>

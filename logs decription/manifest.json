@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "LeetCode Problem Extractor",
+  "version": "1.0",
+  "description": "Extract problem title and statement from LeetCode problem pages",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "LeetCode Problem Extractor"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://leetcode.com/problems/*/description/"],
+      "js": ["content.js"],
+      "run_at": "document_end",
+      "all_frames": false
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
