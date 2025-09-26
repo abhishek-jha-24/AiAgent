@@ -234,13 +234,8 @@ ${aiGeneratedCode ? aiGeneratedCode.split('\n').map(line => ' * ' + line).join('
                 newContent = commentBlock;
             }
             
-            // Try to use Monaco Editor API first
-            if (await setEditorCode(newContent)) {
-                console.log('Successfully injected code using Monaco Editor API');
-            } else {
-                // Fallback to div content replacement
-                targetDiv.innerHTML = `<pre style="white-space: pre-wrap; font-family: monospace; margin: 0; padding: 0; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px;">${newContent}</pre>`;
-            }
+            // Replace all existing content with the new solution
+            targetDiv.innerHTML = `<pre style="white-space: pre-wrap; font-family: monospace; margin: 0; padding: 0; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px;">${newContent}</pre>`;
             
             console.log('Successfully replaced div content with AI solution');
             return true;
@@ -297,17 +292,32 @@ ${aiGeneratedCode ? aiGeneratedCode.split('\n').map(line => ' * ' + line).join('
             newContent = commentBlock;
         }
         
-        // Use Monaco Editor API for clean code injection
-        await setEditorCode(newContent);
+        // Set the new content
+        codeEditor.value = newContent;
         
         // Log only the generated AI solution
         if (aiGeneratedCode) {
             console.log('=== Replacing LeetCode Editor with AI Solution ===');
-            console.log('Raw AI code:');
-            console.log(JSON.stringify(aiGeneratedCode));
-            console.log('Formatted AI code:');
             console.log(aiGeneratedCode);
         }
+        
+        // Trigger input events to notify the editor of the change
+        const events = ['input', 'change', 'keyup', 'paste', 'blur', 'focus'];
+        events.forEach(eventType => {
+            const event = new Event(eventType, { bubbles: true, cancelable: true });
+            codeEditor.dispatchEvent(event);
+        });
+        
+        // Also try to trigger change event on the parent elements
+        let parent = codeEditor.parentElement;
+        while (parent && parent !== document.body) {
+            const changeEvent = new Event('change', { bubbles: true, cancelable: true });
+            parent.dispatchEvent(changeEvent);
+            parent = parent.parentElement;
+        }
+        
+        // Focus the editor
+        codeEditor.focus();
         
         console.log('Successfully replaced LeetCode editor content with AI solution');
         return true;
@@ -675,338 +685,6 @@ function hideRecordingIndicator() {
 }
 
 /**
- * Sets code in the Monaco Editor using the proper API
- * @param {string} code - The code to inject
- */
-async function setEditorCode(code) {
-    try {
-        console.log('=== Starting Code Injection ===');
-        console.log('Code to inject:', code);
-        
-        // Debug: Log all available elements
-        console.log('=== DEBUGGING PAGE ELEMENTS ===');
-        console.log('Monaco editor elements:', document.querySelectorAll('.monaco-editor').length);
-        console.log('Textarea elements:', document.querySelectorAll('textarea').length);
-        console.log('Input elements:', document.querySelectorAll('input').length);
-        console.log('ContentEditable elements:', document.querySelectorAll('[contenteditable="true"]').length);
-        console.log('All elements with "editor" in class:', document.querySelectorAll('[class*="editor"]').length);
-        console.log('All elements with "code" in class:', document.querySelectorAll('[class*="code"]').length);
-        
-        // First try to find Monaco editor instance
-        const monacoEditor = document.querySelector('.monaco-editor');
-        console.log('Monaco editor element found:', !!monacoEditor);
-        
-        if (monacoEditor && monacoEditor.__monacoEditor) {
-            console.log('Using Monaco Editor API');
-            monacoEditor.__monacoEditor.setValue(code);
-            console.log('Monaco API injection successful');
-            return true;
-        }
-        
-        // Try alternative Monaco editor access methods
-        if (window.monaco && window.monaco.editor) {
-            console.log('Using global Monaco editor');
-            const editors = window.monaco.editor.getModels();
-            if (editors.length > 0) {
-                editors[0].setValue(code);
-                console.log('Global Monaco injection successful');
-                return true;
-            }
-        }
-        
-        // Try to find editor via React props
-        const reactEditor = document.querySelector('[data-testid="code-editor"]') || 
-                          document.querySelector('.monaco-editor');
-        console.log('React editor element found:', !!reactEditor);
-        
-        if (reactEditor && reactEditor.__reactProps$) {
-            console.log('Using React props Monaco editor');
-            const editorInstance = reactEditor.__reactProps$.children.props.editor;
-            if (editorInstance && editorInstance.setValue) {
-                editorInstance.setValue(code);
-                console.log('React props injection successful');
-                return true;
-            }
-        }
-        
-        // Try multiple textarea selectors
-        console.log('Trying fallback textarea methods...');
-        const textareaSelectors = [
-            '.monaco-editor textarea.inputarea',
-            '.monaco-editor textarea',
-            'textarea[data-testid="code-editor"]',
-            'textarea',
-            'input[type="text"]'
-        ];
-        
-        let textarea = null;
-        for (const selector of textareaSelectors) {
-            textarea = document.querySelector(selector);
-            if (textarea) {
-                console.log('Found textarea with selector:', selector);
-                break;
-            }
-        }
-        
-        if (textarea) {
-            console.log('Textarea found:', textarea);
-            console.log('Textarea type:', textarea.tagName);
-            console.log('Textarea classes:', textarea.className);
-            
-            // Normalize indentation before inserting
-            const normalizedCode = normalizeIndent(code);
-            console.log('Normalized code:', normalizedCode);
-            
-            // Ensure document is focused first
-            window.focus();
-            document.body.focus();
-            textarea.focus();
-            textarea.select();
-            
-            // Clear existing content first
-            textarea.value = '';
-            
-            // Simulate proper typing with correct indentation
-            await simulateTyping(textarea, normalizedCode);
-            console.log('Value set to:', textarea.value);
-            
-            // Trigger input events to notify Monaco
-            const events = ['input', 'change', 'keyup', 'paste', 'blur', 'focus'];
-            events.forEach(eventType => {
-                const event = new Event(eventType, { bubbles: true, cancelable: true });
-                textarea.dispatchEvent(event);
-            });
-            
-            console.log('Code injected using direct value assignment');
-            
-            // Also try to trigger change on parent elements
-            let parent = textarea.parentElement;
-            while (parent && parent !== document.body) {
-                const changeEvent = new Event('change', { bubbles: true, cancelable: true });
-                parent.dispatchEvent(changeEvent);
-                parent = parent.parentElement;
-            }
-            
-            // Trigger auto-format if available
-            setTimeout(() => {
-                textarea.dispatchEvent(
-                    new KeyboardEvent('keydown', { 
-                        key: 's', 
-                        code: 'KeyS', 
-                        ctrlKey: true,
-                        metaKey: true,
-                        bubbles: true 
-                    })
-                );
-            }, 100);
-            
-            return true;
-        }
-        
-        // Try to find any input element that might be the editor
-        console.log('Trying to find any input elements...');
-        const allInputs = document.querySelectorAll('input, textarea');
-        console.log('Found input elements:', allInputs.length);
-        
-        for (let i = 0; i < allInputs.length; i++) {
-            const input = allInputs[i];
-            console.log(`Input ${i}:`, input.tagName, input.type, input.className);
-            
-            // Try to inject into each input
-            try {
-                input.focus();
-                input.value = code;
-                console.log(`Successfully injected into input ${i}`);
-                return true;
-            } catch (error) {
-                console.log(`Failed to inject into input ${i}:`, error);
-            }
-        }
-        
-        // Try to find editor by looking for common LeetCode patterns
-        console.log('Trying LeetCode-specific selectors...');
-        const leetcodeSelectors = [
-            '[data-testid="code-editor"]',
-            '.monaco-editor',
-            '.editor-container',
-            '.code-editor',
-            '[role="textbox"]',
-            '.inputarea',
-            'div[contenteditable="true"]'
-        ];
-        
-        for (const selector of leetcodeSelectors) {
-            const element = document.querySelector(selector);
-            if (element) {
-                console.log('Found LeetCode element with selector:', selector);
-                console.log('Element:', element);
-                
-                // Try different methods to inject code
-                try {
-                    // Method 1: Try to find textarea inside
-                    const innerTextarea = element.querySelector('textarea');
-                    if (innerTextarea) {
-                        innerTextarea.focus();
-                        innerTextarea.value = code;
-                        console.log('Injected into inner textarea');
-                        return true;
-                    }
-                    
-                    // Method 2: Try contentEditable
-                    if (element.contentEditable === 'true') {
-                        element.focus();
-                        element.textContent = code;
-                        console.log('Injected into contentEditable element');
-                        return true;
-                    }
-                    
-                    // Method 3: Try to trigger click and then inject
-                    element.click();
-                    element.focus();
-                    
-                    // Wait a bit and try to find textarea again
-                    setTimeout(() => {
-                        const textarea = document.querySelector('textarea');
-                        if (textarea) {
-                            textarea.focus();
-                            textarea.value = code;
-                            console.log('Injected after click');
-                        }
-                    }, 100);
-                    
-                } catch (error) {
-                    console.log('Failed to inject into LeetCode element:', error);
-                }
-            }
-        }
-        
-        console.error('Could not find any suitable editor element');
-        return false;
-        
-    } catch (error) {
-        console.error('Error setting editor code:', error);
-        return false;
-    }
-}
-
-/**
- * Simulates typing with proper indentation for Monaco Editor
- * @param {HTMLElement} textarea - The textarea element
- * @param {string} code - The code to type
- */
-async function simulateTyping(textarea, code) {
-    try {
-        console.log('Starting simulated typing...');
-        
-        // Split code into lines
-        const lines = code.split('\n');
-        let currentContent = '';
-        
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-            console.log(`Typing line ${i + 1}:`, JSON.stringify(line));
-            
-            // Add the line to current content
-            if (i === 0) {
-                currentContent = line;
-            } else {
-                currentContent += '\n' + line;
-            }
-            
-            // Set the value with proper line breaks
-            textarea.value = currentContent;
-            
-            // Trigger input event for each line
-            const inputEvent = new Event('input', { bubbles: true, cancelable: true });
-            textarea.dispatchEvent(inputEvent);
-            
-            // Small delay to simulate typing
-            await new Promise(resolve => setTimeout(resolve, 10));
-        }
-        
-        console.log('Simulated typing completed');
-        
-    } catch (error) {
-        console.error('Error in simulated typing:', error);
-        // Fallback to direct assignment
-        textarea.value = code;
-    }
-}
-
-/**
- * Normalizes indentation in code to fix formatting issues
- * @param {string} code - The code to normalize
- * @returns {string} The normalized code
- */
-function normalizeIndent(code) {
-    try {
-        const lines = code.split('\n');
-        let indentLevel = 0;
-        const normalizedLines = [];
-        
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-            const trimmed = line.trim();
-            
-            // Skip empty lines
-            if (trimmed === '') {
-                normalizedLines.push('');
-                continue;
-            }
-            
-            // Calculate indentation based on Python syntax
-            let currentIndent = '';
-            
-            // Class and function definitions - no indentation
-            if (trimmed.startsWith('class ') || trimmed.startsWith('def ')) {
-                indentLevel = 0;
-                currentIndent = '';
-            }
-            // Method body - 4 spaces
-            else if (trimmed.startsWith('return ') || 
-                     trimmed.startsWith('if ') || 
-                     trimmed.startsWith('for ') || 
-                     trimmed.startsWith('while ') ||
-                     trimmed.startsWith('else:') ||
-                     trimmed.startsWith('elif ') ||
-                     trimmed.match(/^[a-zA-Z_][a-zA-Z0-9_]*\s*[=:]/)) {
-                indentLevel = 1;
-                currentIndent = '    '; // 4 spaces
-            }
-            // Loop body - 8 spaces
-            else if (trimmed.startsWith('complement =') || 
-                     trimmed.startsWith('if complement') ||
-                     trimmed.startsWith('num_map[') ||
-                     trimmed.startsWith('return [') ||
-                     trimmed.startsWith('for ') ||
-                     trimmed.startsWith('while ')) {
-                indentLevel = 2;
-                currentIndent = '        '; // 8 spaces
-            }
-            // Nested if/return - 12 spaces
-            else if (trimmed.startsWith('return [num_map[complement], i]')) {
-                indentLevel = 3;
-                currentIndent = '            '; // 12 spaces
-            }
-            // Default to current indent level
-            else {
-                currentIndent = '    '.repeat(indentLevel);
-            }
-            
-            normalizedLines.push(currentIndent + trimmed);
-        }
-        
-        const result = normalizedLines.join('\n');
-        console.log('Normalized code result:', JSON.stringify(result));
-        return result;
-        
-    } catch (error) {
-        console.error('Error normalizing indentation:', error);
-        return code; // Return original if normalization fails
-    }
-}
-
-/**
  * Detects the programming language selected in LeetCode editor
  * @returns {string} The detected programming language
  */
@@ -1192,7 +870,10 @@ function generateMockAISolution(title, voiceNotes, language = 'python') {
     // This is a mock implementation - in reality you'd call an AI API
     const solutions = {
         'python': `class Solution:
+    # Solution based on voice notes: "${voiceNotes}"
+    
     def twoSum(self, nums: List[int], target: int) -> List[int]:
+        # Hash map approach as suggested in voice notes
         num_map = {}
         
         for i, num in enumerate(nums):
@@ -1203,10 +884,16 @@ function generateMockAISolution(title, voiceNotes, language = 'python') {
             
             num_map[num] = i
         
-        return []`,
+        return []  # No solution found
+    
+    # Time Complexity: O(n) - single pass through array
+    # Space Complexity: O(n) - hash map storage`,
 
         'java': `class Solution {
+    // Solution based on voice notes: "${voiceNotes}"
+    
     public int[] twoSum(int[] nums, int target) {
+        // Hash map approach as suggested in voice notes
         Map<Integer, Integer> map = new HashMap<>();
         
         for (int i = 0; i < nums.length; i++) {
@@ -1219,11 +906,22 @@ function generateMockAISolution(title, voiceNotes, language = 'python') {
             map.put(nums[i], i);
         }
         
-        return new int[0];
+        return new int[0]; // No solution found
     }
+    
+    // Time Complexity: O(n) - single pass through array
+    // Space Complexity: O(n) - hash map storage
 }`,
 
-        'javascript': `var twoSum = function(nums, target) {
+        'javascript': `/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number[]}
+ */
+// Solution based on voice notes: "${voiceNotes}"
+
+var twoSum = function(nums, target) {
+    // Hash map approach as suggested in voice notes
     const map = new Map();
     
     for (let i = 0; i < nums.length; i++) {
@@ -1236,12 +934,18 @@ function generateMockAISolution(title, voiceNotes, language = 'python') {
         map.set(nums[i], i);
     }
     
-    return [];
-};`,
+    return []; // No solution found
+};
+
+// Time Complexity: O(n) - single pass through array
+// Space Complexity: O(n) - hash map storage`,
 
         'cpp': `class Solution {
 public:
+    // Solution based on voice notes: "${voiceNotes}"
+    
     vector<int> twoSum(vector<int>& nums, int target) {
+        // Hash map approach as suggested in voice notes
         unordered_map<int, int> map;
         
         for (int i = 0; i < nums.size(); i++) {
@@ -1254,12 +958,18 @@ public:
             map[nums[i]] = i;
         }
         
-        return {};
+        return {}; // No solution found
     }
+    
+    // Time Complexity: O(n) - single pass through array
+    // Space Complexity: O(n) - hash map storage
 };`,
 
         'csharp': `public class Solution {
+    // Solution based on voice notes: "${voiceNotes}"
+    
     public int[] TwoSum(int[] nums, int target) {
+        // Hash map approach as suggested in voice notes
         var map = new Dictionary<int, int>();
         
         for (int i = 0; i < nums.Length; i++) {
@@ -1272,11 +982,17 @@ public:
             map[nums[i]] = i;
         }
         
-        return new int[0];
+        return new int[0]; // No solution found
     }
+    
+    // Time Complexity: O(n) - single pass through array
+    // Space Complexity: O(n) - hash map storage
 }`,
 
         'go': `func twoSum(nums []int, target int) []int {
+    // Solution based on voice notes: "${voiceNotes}"
+    
+    // Hash map approach as suggested in voice notes
     numMap := make(map[int]int)
     
     for i, num := range nums {
@@ -1289,11 +1005,17 @@ public:
         numMap[num] = i
     }
     
-    return []int{}
+    return []int{} // No solution found
+    
+    // Time Complexity: O(n) - single pass through array
+    // Space Complexity: O(n) - hash map storage
 }`,
 
         'rust': `impl Solution {
+    // Solution based on voice notes: "${voiceNotes}"
+    
     pub fn two_sum(nums: Vec<i32>, target: i32) -> Vec<i32> {
+        // Hash map approach as suggested in voice notes
         let mut map = std::collections::HashMap::new();
         
         for (i, &num) in nums.iter().enumerate() {
@@ -1306,11 +1028,17 @@ public:
             map.insert(num, i as i32);
         }
         
-        vec![]
+        vec![] // No solution found
+        
+        // Time Complexity: O(n) - single pass through array
+        // Space Complexity: O(n) - hash map storage
     }
 }`,
 
         'typescript': `function twoSum(nums: number[], target: number): number[] {
+    // Solution based on voice notes: "${voiceNotes}"
+    
+    // Hash map approach as suggested in voice notes
     const map = new Map<number, number>();
     
     for (let i = 0; i < nums.length; i++) {
@@ -1323,7 +1051,10 @@ public:
         map.set(nums[i], i);
     }
     
-    return [];
+    return []; // No solution found
+    
+    // Time Complexity: O(n) - single pass through array
+    // Space Complexity: O(n) - hash map storage
 }`
     };
 
