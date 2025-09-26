@@ -184,11 +184,27 @@ async function injectIntoCodeEditor(title, description) {
             const voiceInput = getRecordedText();
             console.log('Using recorded voice text:', voiceInput);
             
-            // Create a comment block with title and voice input
+            // Generate AI solution based on voice notes and problem description
+            let aiGeneratedCode = '';
+            if (voiceInput && voiceInput.trim() !== '') {
+                try {
+                    console.log('Generating AI solution based on voice notes...');
+                    aiGeneratedCode = await generateAISolution(title, description, voiceInput);
+                    console.log('AI Generated Code:', aiGeneratedCode);
+                } catch (error) {
+                    console.error('Error generating AI solution:', error);
+                    aiGeneratedCode = '// AI solution generation failed: ' + error.message;
+                }
+            }
+            
+            // Create a comment block with title, voice input, and AI solution
             const commentBlock = `/*
  * ${title}
  * 
  * Voice Notes: ${voiceInput}
+ * 
+ * AI Generated Solution:
+${aiGeneratedCode ? aiGeneratedCode.split('\n').map(line => ' * ' + line).join('\n') : ' * No solution generated'}
  */
 
 `;
@@ -213,11 +229,27 @@ async function injectIntoCodeEditor(title, description) {
         console.log('Voice input length:', voiceInput ? voiceInput.length : 0);
         console.log('Is voice input empty?', !voiceInput || voiceInput.trim() === '');
         
-        // Create a comment block with title and voice input
+        // Generate AI solution based on voice notes and problem description
+        let aiGeneratedCode = '';
+        if (voiceInput && voiceInput.trim() !== '') {
+            try {
+                console.log('Generating AI solution based on voice notes...');
+                aiGeneratedCode = await generateAISolution(title, description, voiceInput);
+                console.log('AI Generated Code:', aiGeneratedCode);
+            } catch (error) {
+                console.error('Error generating AI solution:', error);
+                aiGeneratedCode = '// AI solution generation failed: ' + error.message;
+            }
+        }
+        
+        // Create a comment block with title, voice input, and AI solution
         const commentBlock = `/*
  * ${title}
  * 
  * Voice Notes: ${voiceInput}
+ * 
+ * AI Generated Solution:
+${aiGeneratedCode ? aiGeneratedCode.split('\n').map(line => ' * ' + line).join('\n') : ' * No solution generated'}
  */
 
 `;
@@ -625,6 +657,88 @@ function hideRecordingIndicator() {
 }
 
 /**
+ * Generates AI solution based on voice notes and problem description
+ * @param {string} title - The problem title
+ * @param {string} description - The problem description
+ * @param {string} voiceNotes - The voice notes from user
+ * @returns {Promise<string>} The generated code solution
+ */
+async function generateAISolution(title, description, voiceNotes) {
+    try {
+        console.log('=== AI Solution Generation ===');
+        console.log('Title:', title);
+        console.log('Description length:', description.length);
+        console.log('Voice notes:', voiceNotes);
+        
+        // Create a prompt for AI code generation
+        const prompt = `You are an expert programmer. Generate a complete solution for this LeetCode problem based on the user's voice notes.
+
+Problem Title: ${title}
+
+Problem Description:
+${description}
+
+User's Voice Notes/Instructions:
+${voiceNotes}
+
+Please generate a complete, working solution that follows the user's instructions. Include:
+1. Proper class structure
+2. Complete implementation
+3. Comments explaining the approach
+4. Time and space complexity analysis
+
+Return only the code solution, no explanations outside the code.`;
+
+        // For now, we'll use a simple mock AI response since we don't have API access
+        // In a real implementation, you would call an AI API like OpenAI, Claude, etc.
+        const mockAISolution = generateMockAISolution(title, voiceNotes);
+        
+        console.log('Generated AI solution:', mockAISolution);
+        return mockAISolution;
+        
+    } catch (error) {
+        console.error('Error in AI solution generation:', error);
+        throw error;
+    }
+}
+
+/**
+ * Generates a mock AI solution based on the problem and voice notes
+ * @param {string} title - The problem title
+ * @param {string} voiceNotes - The voice notes
+ * @returns {string} Mock solution code
+ */
+function generateMockAISolution(title, voiceNotes) {
+    // This is a mock implementation - in reality you'd call an AI API
+    const solution = `class Solution {
+    // Solution based on voice notes: "${voiceNotes}"
+    
+    public int[] twoSum(int[] nums, int target) {
+        // Hash map approach as suggested in voice notes
+        Map<Integer, Integer> map = new HashMap<>();
+        
+        for (int i = 0; i < nums.length; i++) {
+            int complement = target - nums[i];
+            
+            if (map.containsKey(complement)) {
+                return new int[]{map.get(complement), i};
+            }
+            
+            map.put(nums[i], i);
+        }
+        
+        return new int[0]; // No solution found
+    }
+    
+    // Time Complexity: O(n) - single pass through array
+    // Space Complexity: O(n) - hash map storage
+}`;
+
+    console.log('Mock AI solution generated for:', title);
+    return solution;
+}
+
+/**
  * Retrieves the stored problem description
  * @returns {string} The stored problem description
  */
@@ -642,5 +756,6 @@ window.leetcodeExtractor = {
     getStoredDescription,
     startVoiceRecording,
     stopVoiceRecording,
-    getRecordedText
+    getRecordedText,
+    generateAISolution
 };
