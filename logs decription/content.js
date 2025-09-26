@@ -210,6 +210,8 @@ async function injectIntoCodeEditor(title, description) {
         // Get recorded voice text
         const voiceInput = getRecordedText();
         console.log('Using recorded voice text:', voiceInput);
+        console.log('Voice input length:', voiceInput ? voiceInput.length : 0);
+        console.log('Is voice input empty?', !voiceInput || voiceInput.trim() === '');
         
         // Create a comment block with title and voice input
         const commentBlock = `/*
@@ -232,9 +234,12 @@ async function injectIntoCodeEditor(title, description) {
         
         // Add the comment block at the beginning
         const newContent = commentBlock + currentContent;
+        console.log('New content to inject:', newContent);
+        console.log('Comment block:', commentBlock);
         
         // Set the new content
         codeEditor.value = newContent;
+        console.log('Code editor value set to:', codeEditor.value);
         
         // Trigger input events to notify the editor of the change
         const events = ['input', 'change', 'keyup', 'paste', 'blur', 'focus'];
@@ -473,6 +478,8 @@ function startVoiceRecording() {
                 const transcript = event.results[i][0].transcript;
                 if (event.results[i].isFinal) {
                     recordedText += transcript + ' ';
+                    console.log('Final transcript added:', transcript);
+                    console.log('Total recorded text so far:', recordedText);
                 } else {
                     interimTranscript += transcript;
                 }
@@ -519,6 +526,7 @@ function startVoiceRecording() {
  */
 function stopVoiceRecording() {
     console.log('Stopping voice recording...');
+    console.log('Current recorded text before stopping:', recordedText);
     
     if (currentRecognition && isRecording) {
         currentRecognition.stop();
@@ -526,10 +534,13 @@ function stopVoiceRecording() {
         isRecording = false;
         hideRecordingIndicator();
         
-        console.log('Final recorded text:', recordedText.trim());
-        return recordedText.trim();
+        const finalText = recordedText.trim();
+        console.log('Final recorded text after stopping:', finalText);
+        console.log('Final text length:', finalText.length);
+        return finalText;
     }
     
+    console.log('No active recording to stop');
     return '';
 }
 
@@ -537,7 +548,10 @@ function stopVoiceRecording() {
  * Gets the currently recorded text
  */
 function getRecordedText() {
-    return recordedText.trim();
+    const text = recordedText.trim();
+    console.log('getRecordedText called, returning:', text);
+    console.log('getRecordedText length:', text.length);
+    return text;
 }
 
 /**
